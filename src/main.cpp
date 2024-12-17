@@ -3,20 +3,21 @@
 #include <vector>
 #include <sstream>
 #include "commands.hpp"
+#include "parser.hpp"
 
 void print_prompt()
 {
   std::cout << "$ ";
 }
 
-std::vector<std::string> split(std::string const &text)
+std::vector<std::string> split(std::string const &text, char delimiter)
 {
   std::vector<std::string> tokens{};
   std::string token{};
 
   std::istringstream sst{text};
 
-  while (sst >> token)
+  while (std::getline(sst, token, delimiter))
   {
     tokens.push_back(token);
   }
@@ -41,7 +42,13 @@ int main()
     std::string input;
     std::getline(std::cin, input);
 
-    std::vector<std::string> tokens = split(input);
+    std::vector<std::string> tokens = parse(input);
+
+    // std::cout << "Token number is: " << tokens.size() << "\n";
+    // for (std::string token : tokens)
+    // {
+    //   std::cout << token << ' ';
+    // }
 
     if (tokens.empty())
     {

@@ -73,7 +73,7 @@ void Commands::run_external_executable(std::string cmd_name, std::vector<std::st
     command << cmd_name;
     for (const auto &arg : cmd_args)
     {
-        command << " " << arg;
+        command << " " << '\"' << arg << '\"';
     }
 
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.str().c_str(), "r"), pclose);
