@@ -2,6 +2,7 @@
 #include <map>
 #include <vector>
 #include <sstream>
+#include "commands.hpp"
 
 void print_prompt()
 {
@@ -23,30 +24,10 @@ std::vector<std::string> split(std::string const &text)
   return tokens;
 }
 
-void exit_fn(std::vector<std::string> const args)
-{
-  for (std::string arg : args)
-  {
-    exit(std::stoi(arg));
-  }
-}
-
-void echo_fn(std::vector<std::string> const args)
-{
-  for (std::string arg : args)
-  {
-    std::cout << arg << " ";
-  }
-  std::cout << '\n';
-}
-
 int main()
 {
 
-  std::map<std::string, void (*)(std::vector<std::string>)> valid_commands;
-
-  valid_commands["exit"] = &exit_fn;
-  valid_commands["echo"] = &echo_fn;
+  Commands commands;
 
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
@@ -71,14 +52,7 @@ int main()
     std::string command = tokens.front();
     tokens.erase(tokens.begin());
 
-    if (valid_commands.find(command) == valid_commands.end())
-    {
-      std::cout << input << ": command not found\n";
-    }
-    else
-    {
-      valid_commands.at(command)(tokens);
-    }
+    commands.run_cmd(command, tokens);
     print_prompt();
   }
 }
