@@ -31,12 +31,22 @@ void exit_fn(std::vector<std::string> const args)
   }
 }
 
+void echo_fn(std::vector<std::string> const args)
+{
+  for (std::string arg : args)
+  {
+    std::cout << arg << " ";
+  }
+  std::cout << '\n';
+}
+
 int main()
 {
 
   std::map<std::string, void (*)(std::vector<std::string>)> valid_commands;
 
   valid_commands["exit"] = &exit_fn;
+  valid_commands["echo"] = &echo_fn;
 
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
