@@ -1,5 +1,11 @@
 #include <iostream>
 #include <set>
+
+void print_prompt()
+{
+  std::cout << "$ ";
+}
+
 int main()
 {
 
@@ -10,13 +16,24 @@ int main()
   std::cerr << std::unitbuf;
 
   // Uncomment this block to pass the first stage
-  std::cout << "$ ";
+  print_prompt();
 
-  std::string input;
-  std::getline(std::cin, input);
-
-  if (valid_commands.find(input) == valid_commands.end())
+  while (1)
   {
-    std::cout << input << ": command not found\n";
+    std::string input;
+    std::getline(std::cin, input);
+
+    if (input.size() == 0)
+    {
+    }
+
+    else if (valid_commands.find(input) == valid_commands.end())
+    {
+      std::cout << input << ": command not found\n";
+    }
+    else
+    {
+    }
+    print_prompt();
   }
 }
