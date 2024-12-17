@@ -6,7 +6,8 @@
 #include <map>
 #include <cstdlib>
 #include <filesystem>
-
+#include <memory>
+#include <array>
 class Commands
 {
 private:
@@ -15,9 +16,16 @@ private:
 
     bool is_executable(const std::filesystem::directory_entry &entry);
 
+    bool is_internal(std::string cmd_name);
+    bool is_external(std::string cmd_name);
+
+    bool is_in_path(std::string cmd_name);
+
     void exit_fn(std::vector<std::string> cmd_args);
     void echo_fn(std::vector<std::string> cmd_args);
     void type_fn(std::vector<std::string> cmd_args);
+
+    void run_external_executable(std::string cmd_name, std::vector<std::string> cmd_args);
 
 public:
     Commands();

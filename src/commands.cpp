@@ -17,31 +17,82 @@ bool Commands::is_executable(std::filesystem::directory_entry const &entry)
     return (permissions & execute_mask) != std::filesystem::perms::none;
 }
 
+bool Commands::is_internal(std::string cmd_name)
+{
+    return commands.find(cmd_name) != commands.end();
+}
+
+bool Commands::is_external(std::string cmd_name)
+{
+    return path_commands.find(cmd_name) != path_commands.end();
+}
+
 Commands::Commands()
 {
-    std::string path = std::getenv("PATH");
+    std::string path_env = std::getenv("PATH");
 
-    std::stringstream ss(path);
-
-    std::string directory{""};
-    while (std::getline(ss, directory, ':'))
+    std::stringstream ss(path_env);
+    std::string path;
+    while (!ss.eof())
+    {
+        getline(ss, path, ':');
         try
         {
-            for (const auto &entry : std::filesystem::directory_iterator(directory))
-                if (is_executable(entry))
-                {
-                    path_commands.insert({entry.path().filename(), entry.path()});
-                }
+            for (const auto &entry : std::filesystem::directory_iterator(path))
+            // if (is_executable(entry))
+            {
+                path_commands.insert({entry.path().filename().string(), entry.path()});
+            }
         }
         catch (const std::filesystem::filesystem_error &e)
         {
         }
-    directory.clear();
+    }
+}
+
+bool Commands::is_in_path(std::string cmd_name)
+{
+
+    std::string path_env = std::getenv("PATH");
+    std::stringstream ss(path_env);
+    std::string path;
+    while (!ss.eof())
+    {
+        getline(ss, path, ':');
+        std::string abs_path = path + '/' + cmd_name;
+        if (std::filesystem::exists(abs_path))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Commands::run_external_executable(std::string cmd_name, std::vector<std::string> cmd_args)
+{
+    std::ostringstream command;
+    command << cmd_name;
+    for (const auto &arg : cmd_args)
+    {
+        command << " " << arg;
+    }
+
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.str().c_str(), "r"), pclose);
+
+    std::array<char, 128> buffer = {};
+    std::string output;
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+    {
+        output += buffer.data();
+    }
+
+    std::cout << output;
 }
 
 void Commands::run_cmd(std::string cmd_name, std::vector<std::string> cmd_args)
 {
-    if (commands.find(cmd_name) != commands.end())
+
+    if (is_internal(cmd_name))
     {
         if (cmd_name == "exit")
         {
@@ -55,6 +106,10 @@ void Commands::run_cmd(std::string cmd_name, std::vector<std::string> cmd_args)
         {
             type_fn(cmd_args);
         }
+    }
+    else if (is_external(cmd_name) or is_in_path(cmd_name))
+    {
+        run_external_executable(cmd_name, cmd_args);
     }
     else
     {
@@ -81,11 +136,11 @@ void Commands::echo_fn(std::vector<std::string> cmd_args)
 
 void Commands::type_fn(std::vector<std::string> cmd_args)
 {
-    if (commands.find(cmd_args.at(0)) != commands.end())
+    if (is_internal(cmd_args.at(0)))
     {
         std::cout << cmd_args.at(0) << " is a shell builtin";
     }
-    else if (path_commands.find(cmd_args.at(0)) != path_commands.end())
+    else if (is_external(cmd_args.at(0)))
     {
         std::string path = path_commands.at(cmd_args.at(0)).string();
         std::cout << cmd_args.at(0) << " is " << path;
