@@ -1,15 +1,42 @@
 #include <iostream>
-#include <set>
+#include <map>
+#include <vector>
+#include <sstream>
 
 void print_prompt()
 {
   std::cout << "$ ";
 }
 
+std::vector<std::string> split(std::string const &text)
+{
+  std::vector<std::string> tokens{};
+  std::string token{};
+
+  std::istringstream sst{text};
+
+  while (sst >> token)
+  {
+    tokens.push_back(token);
+  }
+
+  return tokens;
+}
+
+void exit_fn(std::vector<std::string> const args)
+{
+  for (std::string arg : args)
+  {
+    exit(std::stoi(arg));
+  }
+}
+
 int main()
 {
 
-  std::set<std::string> valid_commands{};
+  std::map<std::string, void (*)(std::vector<std::string>)> valid_commands;
+
+  valid_commands["exit"] = &exit_fn;
 
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
@@ -23,16 +50,24 @@ int main()
     std::string input;
     std::getline(std::cin, input);
 
-    if (input.size() == 0)
+    std::vector<std::string> tokens = split(input);
+
+    if (tokens.empty())
     {
+      print_prompt();
+      continue;
     }
 
-    else if (valid_commands.find(input) == valid_commands.end())
+    std::string command = tokens.front();
+    tokens.erase(tokens.begin());
+
+    if (valid_commands.find(command) == valid_commands.end())
     {
       std::cout << input << ": command not found\n";
     }
     else
     {
+      valid_commands.at(command)(tokens);
     }
     print_prompt();
   }
