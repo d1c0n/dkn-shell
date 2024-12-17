@@ -26,11 +26,18 @@ Commands::Commands()
     {
         if (c == ':')
         {
-            for (const auto &entry : std::filesystem::directory_iterator(directory))
-                if (is_executable(entry))
-                {
-                    path_commands.insert({entry.path().filename(), entry.path()});
-                }
+            try
+            {
+                for (const auto &entry : std::filesystem::directory_iterator(directory))
+                    if (is_executable(entry))
+                    {
+                        path_commands.insert({entry.path().filename(), entry.path()});
+                    }
+            }
+            catch (const std::filesystem::filesystem_error &e)
+            {
+                continue;
+            }
         }
         else
         {
