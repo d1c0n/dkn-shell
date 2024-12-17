@@ -9,12 +9,28 @@ std::vector<std::string> parse(std::string const &text)
     std::string currentToken{""};
 
     bool escape{false};
+    bool escapeDouble{false};
 
     for (char c : text)
     {
         if (escape)
         {
             currentToken += c;
+            escape = false;
+        }
+        else if (escapeDouble)
+        {
+            if (c == '\\' or c == '$' or c == '\"' or c == '\n')
+            {
+                currentToken += c;
+                escapeDouble = false;
+            }
+            else
+            {
+                currentToken += '\\';
+                currentToken += c;
+                escapeDouble = false;
+            }
         }
         else if (c == '\\')
         {
@@ -24,6 +40,11 @@ std::vector<std::string> parse(std::string const &text)
             {
                 currentToken += c;
                 escape = false;
+            }
+            else if (state == ParserState::DOUBLE_QUOTE)
+            {
+                escape = false;
+                escapeDouble = true;
             }
         }
         else if (state == ParserState::SINGLE_QUOTE)
