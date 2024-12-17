@@ -39,7 +39,6 @@ Commands::Commands()
         try
         {
             for (const auto &entry : std::filesystem::directory_iterator(path))
-            // if (is_executable(entry))
             {
                 path_commands.insert({entry.path().filename().string(), entry.path()});
             }
@@ -105,6 +104,10 @@ void Commands::run_cmd(std::string cmd_name, std::vector<std::string> cmd_args)
         else if (cmd_name == "type")
         {
             type_fn(cmd_args);
+        }
+        else if (cmd_name == "pwd")
+        {
+            run_external_executable(cmd_name, cmd_args);
         }
     }
     else if (is_external(cmd_name) or is_in_path(cmd_name))

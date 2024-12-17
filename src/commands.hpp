@@ -11,7 +11,7 @@
 class Commands
 {
 private:
-    std::set<std::string> commands{"echo", "type", "exit"};
+    std::set<std::string> commands{"echo", "type", "exit", "pwd"};
     std::map<std::string, std::filesystem::path> path_commands{};
 
     bool is_executable(const std::filesystem::directory_entry &entry);
