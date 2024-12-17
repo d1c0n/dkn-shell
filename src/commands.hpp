@@ -24,6 +24,8 @@ private:
     void exit_fn(std::vector<std::string> cmd_args);
     void echo_fn(std::vector<std::string> cmd_args);
     void type_fn(std::vector<std::string> cmd_args);
+    void pwd_fn(std::vector<std::string> cmd_args);
+    void cd_fn(std::vector<std::string> cmd_args);
 
     void run_external_executable(std::string cmd_name, std::vector<std::string> cmd_args);
 

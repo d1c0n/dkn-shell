@@ -154,3 +154,10 @@ void Commands::type_fn(std::vector<std::string> cmd_args)
     }
     std::cout << '\n';
 }
+
+void Commands::pwd_fn(std::vector<std::string> cmd_args)
+{
+    auto currentPath = std::filesystem::current_path();
+
+    std::cout << currentPath << "\n";
+}
