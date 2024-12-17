@@ -29,6 +29,8 @@ private:
 
     void run_external_executable(std::string cmd_name, std::vector<std::string> cmd_args);
 
+    std::string run_external_executable(std::string cmd_name, std::vector<std::string> cmd_args, bool return_output);
+
 public:
     Commands();
 

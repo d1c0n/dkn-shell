@@ -88,6 +88,26 @@ void Commands::run_external_executable(std::string cmd_name, std::vector<std::st
     std::cout << output;
 }
 
+std::string Commands::run_external_executable(std::string cmd_name, std::vector<std::string> cmd_args, bool return_output)
+{
+    std::ostringstream command;
+    command << cmd_name;
+    for (const auto &arg : cmd_args)
+    {
+        command << " " << arg;
+    }
+
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.str().c_str(), "r"), pclose);
+
+    std::array<char, 128> buffer = {};
+    std::string output;
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+    {
+        output += buffer.data();
+    }
+
+    return output.substr(0, output.size() - 1);
+}
 void Commands::run_cmd(std::string cmd_name, std::vector<std::string> cmd_args)
 {
 
@@ -169,6 +189,13 @@ void Commands::pwd_fn(std::vector<std::string> cmd_args)
 void Commands::cd_fn(std::vector<std::string> cmd_args)
 {
     std::string newPath = cmd_args.front();
+
+    std::size_t tildePosition = newPath.find_first_of('~');
+    if (tildePosition != std::string::npos or newPath.empty())
+    {
+        std::string homeDir = std::getenv("HOME");
+        newPath.replace(tildePosition, 1, homeDir);
+    }
     try
     {
         std::filesystem::current_path(newPath);
