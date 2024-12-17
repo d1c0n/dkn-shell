@@ -21,29 +21,22 @@ Commands::Commands()
 {
     std::string path = std::getenv("PATH");
 
+    std::stringstream ss(path);
+
     std::string directory{""};
-    for (char c : path)
-    {
-        if (c == ':')
+    while (std::getline(ss, directory, ':'))
+        try
         {
-            try
-            {
-                for (const auto &entry : std::filesystem::directory_iterator(directory))
-                    if (is_executable(entry))
-                    {
-                        path_commands.insert({entry.path().filename(), entry.path()});
-                    }
-            }
-            catch (const std::filesystem::filesystem_error &e)
-            {
-                continue;
-            }
+            for (const auto &entry : std::filesystem::directory_iterator(directory))
+                if (is_executable(entry))
+                {
+                    path_commands.insert({entry.path().filename(), entry.path()});
+                }
         }
-        else
+        catch (const std::filesystem::filesystem_error &e)
         {
-            directory += c;
         }
-    }
+    directory.clear();
 }
 
 void Commands::run_cmd(std::string cmd_name, std::vector<std::string> cmd_args)
