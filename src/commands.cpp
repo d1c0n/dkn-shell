@@ -107,7 +107,11 @@ void Commands::run_cmd(std::string cmd_name, std::vector<std::string> cmd_args)
         }
         else if (cmd_name == "pwd")
         {
-            run_external_executable(cmd_name, cmd_args);
+            pwd_fn(cmd_args);
+        }
+        else if (cmd_name == "cd")
+        {
+            cd_fn(cmd_args);
         }
     }
     else if (is_external(cmd_name) or is_in_path(cmd_name))
@@ -157,7 +161,20 @@ void Commands::type_fn(std::vector<std::string> cmd_args)
 
 void Commands::pwd_fn(std::vector<std::string> cmd_args)
 {
-    auto currentPath = std::filesystem::current_path();
+    std::string currentPath = std::filesystem::current_path();
 
     std::cout << currentPath << "\n";
+}
+
+void Commands::cd_fn(std::vector<std::string> cmd_args)
+{
+    std::string newPath = cmd_args.front();
+    try
+    {
+        std::filesystem::current_path(newPath);
+    }
+    catch (std::filesystem::filesystem_error &e)
+    {
+        std::cout << "cd: " << newPath << ": No such file or directory\n";
+    }
 }
