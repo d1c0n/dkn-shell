@@ -1,5 +1,44 @@
 #include "commands.hpp"
 
+bool Commands::is_executable(std::filesystem::directory_entry const &entry)
+{
+    // Check if it is a regular file
+    if (!entry.is_regular_file())
+    {
+        return false;
+    }
+
+    // Get the permissions of the file
+    std::filesystem::perms permissions = entry.status().permissions();
+
+    // Check execute permissions for owner, group, or others
+    constexpr std::filesystem::perms execute_mask = std::filesystem::perms::owner_exec | std::filesystem::perms::group_exec | std::filesystem::perms::others_exec;
+
+    return (permissions & execute_mask) != std::filesystem::perms::none;
+}
+
+Commands::Commands()
+{
+    std::string path = std::getenv("PATH");
+
+    std::string directory{""};
+    for (char c : path)
+    {
+        if (c == ':')
+        {
+            for (const auto &entry : std::filesystem::directory_iterator(directory))
+                if (is_executable(entry))
+                {
+                    path_commands.insert({entry.path().filename(), entry.path()});
+                }
+        }
+        else
+        {
+            directory += c;
+        }
+    }
+}
+
 void Commands::run_cmd(std::string cmd_name, std::vector<std::string> cmd_args)
 {
     if (commands.find(cmd_name) != commands.end())
@@ -45,6 +84,11 @@ void Commands::type_fn(std::vector<std::string> cmd_args)
     if (commands.find(cmd_args.at(0)) != commands.end())
     {
         std::cout << cmd_args.at(0) << " is a shell builtin";
+    }
+    else if (path_commands.find(cmd_args.at(0)) != path_commands.end())
+    {
+        std::string path = path_commands.at(cmd_args.at(0)).string();
+        std::cout << cmd_args.at(0) << " is " << path;
     }
     else
     {
