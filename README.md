@@ -2,10 +2,19 @@
 
 This is a C++ implementation of the ["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview), a POSIX compliant shell that's capable of interpreting shell commands, running external programs and builtin commands like cd, pwd, echo and more.
 
+# Building
+
+1. Ensure you have `cmake` and `vcpkg` and a compatible compiler (`gcc` or `clan`) installed locally.
+2. Run `g++ src/main.cpp src/commands.cpp src/parser.cpp`.
+
 # Running
 
-Note: This section is for stages 2 and beyond.
+Run the compiled `a.out`.
 
-1. Ensure you have `cmake` and `vcpkg` installed locally
-2. Run `./run_program.sh` to run the shell, which is implemented in
-   `src/main.cpp`.
+or
+
+Download the latest release and `chmod +x ./dknshell` to make executable, then run `./dknshell`.
+
+or
+
+Run the `run_program.sh` script to compile and run in one command.
