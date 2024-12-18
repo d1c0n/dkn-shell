@@ -70,7 +70,16 @@ bool Commands::is_in_path(std::string cmd_name)
 void Commands::run_external_executable(std::string cmd_name, std::vector<std::string> cmd_args)
 {
     std::ostringstream command;
-    command << cmd_name;
+    if (cmd_name.find_first_of('\'') != std::string::npos)
+    {
+        command << '\"' << cmd_name << '\"';
+    }
+    else
+    {
+        command << '\'' << cmd_name << '\'';
+    }
+    // command << cmd_name;
+
     for (const auto &arg : cmd_args)
     {
         if (arg.find_first_of('\'') != std::string::npos)

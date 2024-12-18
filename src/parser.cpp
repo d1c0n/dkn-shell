@@ -10,9 +10,30 @@ std::vector<std::string> parse(std::string const &text)
 
     bool escape{false};
     bool escapeDouble{false};
+    bool quotedExecutable{false};
+    bool doubleQuotedExecutable{false};
+
+    int counter{0};
 
     for (char c : text)
     {
+        if (tokens.size() == 0 and !quotedExecutable and !doubleQuotedExecutable)
+        {
+            if (c == '\'')
+            {
+                // currentToken += c;
+                quotedExecutable = true;
+                state = ParserState::SINGLE_QUOTE;
+                continue;
+            }
+            else if (c == '\"')
+            {
+                // currentToken += c;
+                doubleQuotedExecutable = true;
+                state = ParserState::DOUBLE_QUOTE;
+                continue;
+            }
+        }
         if (escape)
         {
             currentToken += c;
@@ -51,6 +72,13 @@ std::vector<std::string> parse(std::string const &text)
         {
             if (c == '\'')
             {
+                if (quotedExecutable)
+                {
+                    // currentToken += c;
+                    tokens.push_back(currentToken);
+                    currentToken.clear();
+                    quotedExecutable = false;
+                }
                 state = ParserState::SPACE;
             }
             else
@@ -62,6 +90,13 @@ std::vector<std::string> parse(std::string const &text)
         {
             if (c == '\"')
             {
+                if (doubleQuotedExecutable)
+                {
+                    // currentToken += c;
+                    tokens.push_back(currentToken);
+                    currentToken.clear();
+                    doubleQuotedExecutable = false;
+                }
                 state = ParserState::SPACE;
             }
             else
@@ -92,6 +127,7 @@ std::vector<std::string> parse(std::string const &text)
                 currentToken += c;
             }
         }
+        counter++;
     }
 
     if (!currentToken.empty())
